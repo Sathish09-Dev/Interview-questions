@@ -1,6 +1,8 @@
-Absolutely! Here's your **updated and enhanced answer** including **TruffleHog, SonarQube, Black Duck**, and now also **HashiCorp Vault** for secure secret management during deployments — all within a **.NET-based CI/CD pipeline using Azure DevOps**:
 
----
+
+
+## 1.	Can you walk me through a CI/CD pipeline you designed and implemented? What parts were automated and why?
+
 
 ### ✅ **CI/CD Pipeline for .NET Application (with Full Static Analysis and Secret Management)**
 
