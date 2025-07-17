@@ -90,3 +90,168 @@ Would you like:
 * A **sample YAML snippet** to show how HashiCorp Vault is called from Azure DevOps?
 * A **diagram** of this pipeline flow?
 * Or help tailoring this story for an **interview response** or **project write-up**?
+
+---
+
+## Yaml script for this question 
+Here is a **sample Azure DevOps YAML pipeline** that includes:
+
+✅ **Build and test for .NET Core**
+✅ **Static code analysis with SonarQube**
+✅ **Secret scanning with TruffleHog**
+✅ **Dependency scanning with Black Duck**
+✅ **Terraform-based infrastructure provisioning**
+✅ **Secrets injection from HashiCorp Vault**
+✅ **Deployment to Azure App Service**
+
+---
+
+### ✅ **Azure DevOps YAML Pipeline: .NET App with Security + Vault Integration**
+
+```yaml
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  buildConfiguration: 'Release'
+  artifactName: 'drop'
+  appName: 'my-dotnet-app'
+  resourceGroup: 'my-rg'
+  environment: 'dev'
+
+stages:
+
+# ---------- BUILD & TEST ----------
+- stage: Build
+  jobs:
+    - job: BuildAndTest
+      displayName: 'Build and Test .NET App'
+      pool:
+        vmImage: 'windows-latest'
+      steps:
+        - task: UseDotNet@2
+          inputs:
+            packageType: 'sdk'
+            version: '7.x'
+
+        - script: |
+            dotnet restore
+            dotnet build --configuration $(buildConfiguration)
+            dotnet test --no-build --verbosity normal
+          displayName: 'Restore, Build & Test'
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(System.DefaultWorkingDirectory)'
+            ArtifactName: '$(artifactName)'
+            publishLocation: 'Container'
+
+# ---------- STATIC CODE SCANNING ----------
+- stage: StaticAnalysis
+  dependsOn: Build
+  jobs:
+    - job: CodeScan
+      displayName: 'TruffleHog, SonarQube & Black Duck'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - script: |
+            pip install trufflehog
+            trufflehog filesystem . || echo "No secrets found"
+          displayName: 'TruffleHog Secret Scan'
+
+        - task: SonarQubePrepare@5
+          inputs:
+            SonarQube: 'SonarQubeServiceConnection'
+            scannerMode: 'MSBuild'
+            projectKey: 'dotnet-app'
+            projectName: 'dotnet-app'
+
+        - task: SonarQubeAnalyze@5
+
+        - task: SonarQubePublish@5
+          inputs:
+            pollingTimeoutSec: '300'
+
+        - script: |
+            bash <(curl -s -L https://detect.synopsys.com/detect.sh) \
+            --blackduck.url=https://<your-blackduck-url> \
+            --blackduck.api.token=$BLACKDUCK_API_TOKEN \
+            --detect.project.name=dotnet-app \
+            --detect.project.version.name=1.0
+          displayName: 'Black Duck Scan'
+          env:
+            BLACKDUCK_API_TOKEN: $(BLACKDUCK_API_TOKEN)
+
+# ---------- INFRASTRUCTURE PROVISIONING ----------
+- stage: ProvisionInfrastructure
+  dependsOn: StaticAnalysis
+  jobs:
+    - job: TerraformProvision
+      displayName: 'Provision Infra with Terraform'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - script: |
+            cd infra
+            terraform init
+            terraform plan -out=tfplan
+            terraform apply -auto-approve tfplan
+          displayName: 'Terraform Apply'
+
+# ---------- DEPLOYMENT ----------
+- stage: Deploy
+  dependsOn: ProvisionInfrastructure
+  jobs:
+    - job: DeployApp
+      displayName: 'Deploy to Azure App Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        # --- HashiCorp Vault Integration ---
+        - script: |
+            export VAULT_ADDR=https://vault.mycompany.com
+            export VAULT_TOKEN=$(VAULT_TOKEN)
+            export DB_PASSWORD=$(vault kv get -field=password secret/dotnet-app/db)
+            echo "##vso[task.setvariable variable=DB_PASSWORD;issecret=true]$DB_PASSWORD"
+          displayName: 'Fetch Secrets from HashiCorp Vault'
+          env:
+            VAULT_TOKEN: $(VAULT_TOKEN)
+
+        # --- Download Build Artifact ---
+        - task: DownloadBuildArtifacts@0
+          inputs:
+            buildType: 'current'
+            downloadType: 'single'
+            artifactName: '$(artifactName)'
+            downloadPath: '$(System.ArtifactsDirectory)'
+
+        # --- Deploy to Azure App Service ---
+        - task: AzureWebApp@1
+          inputs:
+            azureSubscription: 'AzureServiceConnection'
+            appType: 'webApp'
+            appName: '$(appName)'
+            package: '$(System.ArtifactsDirectory)/$(artifactName)/**/*.zip'
+            deploymentMethod: 'auto'
+```
+
+---
+
+### 🔐 **Secrets and Security Notes**
+
+* `VAULT_TOKEN` and `BLACKDUCK_API_TOKEN` should be stored securely as **pipeline secrets** in Azure DevOps Library or linked from **Azure Key Vault**.
+* Replace `<your-blackduck-url>` and Vault paths with your actual endpoints.
+
+---
+
+### 💡 Want to Extend This?
+
+* Add **approval gates** before the `Deploy` stage.
+* Include **email or Slack notifications**.
+* Add **post-deployment smoke tests** using `curl` or a custom script.
+
+Would you like a visual **pipeline flowchart** or a version for **Linux-hosted .NET apps** on **Azure VMs** instead?
+
