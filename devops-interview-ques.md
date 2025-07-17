@@ -280,3 +280,97 @@ This approach helped ensure idempotent, secure, and consistent infrastructure de
 A remote backend in Terraform is a way to store the Terraform state file (terraform.tfstate) in a centralized, remote location, instead of locally on your machine.
 
 The state file holds the current configuration of your infrastructure, so managing it properly is critical — especially in teams.
+---
+## Give an example of a script you've written to automate a routine task. What language did you use and why?
+Here's a **Bash script** to perform a **health check on a Linux server**. It gathers system health metrics such as:
+
+* CPU load
+* Memory usage
+* Disk usage
+* Running services (optional)
+* Network availability
+* Uptime
+
+---
+
+### ✅ **Linux Health Check Bash Script**
+
+```bash
+#!/bin/bash
+
+# Output file
+LOGFILE="health_check_$(hostname)_$(date +'%Y%m%d_%H%M%S').log"
+
+echo "Linux Health Check Report - $(date)" | tee "$LOGFILE"
+echo "Hostname: $(hostname)" | tee -a "$LOGFILE"
+echo "Uptime:" | tee -a "$LOGFILE"
+uptime | tee -a "$LOGFILE"
+
+echo -e "\n=== CPU Load ===" | tee -a "$LOGFILE"
+top -bn1 | grep "load average" | tee -a "$LOGFILE"
+
+echo -e "\n=== Memory Usage ===" | tee -a "$LOGFILE"
+free -h | tee -a "$LOGFILE"
+
+echo -e "\n=== Disk Usage ===" | tee -a "$LOGFILE"
+df -h | tee -a "$LOGFILE"
+
+echo -e "\n=== Top Memory-Consuming Processes ===" | tee -a "$LOGFILE"
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 10 | tee -a "$LOGFILE"
+
+echo -e "\n=== Open TCP Ports ===" | tee -a "$LOGFILE"
+ss -tuln | tee -a "$LOGFILE"
+
+echo -e "\n=== Network Interfaces ===" | tee -a "$LOGFILE"
+ip a | tee -a "$LOGFILE"
+
+echo -e "\n=== Ping Check (Google DNS) ===" | tee -a "$LOGFILE"
+ping -c 4 8.8.8.8 | tee -a "$LOGFILE"
+
+echo -e "\n=== Service Status (e.g., sshd) ===" | tee -a "$LOGFILE"
+systemctl is-active sshd | tee -a "$LOGFILE"
+
+echo -e "\n=== Recent System Log Errors ===" | tee -a "$LOGFILE"
+journalctl -p 3 -xb | head -20 | tee -a "$LOGFILE"
+
+echo -e "\nHealth check complete. Log saved to: $LOGFILE"
+```
+
+---
+
+### 🔧 **How to Use**
+
+1. Save it to a file:
+
+   ```bash
+   nano linux_health_check.sh
+   ```
+2. Make it executable:
+
+   ```bash
+   chmod +x linux_health_check.sh
+   ```
+3. Run the script:
+
+   ```bash
+   ./linux_health_check.sh
+   ```
+
+---
+
+### ⏱️ Optional: Schedule with Cron
+
+To run daily at 9 AM:
+
+```bash
+crontab -e
+```
+
+Add:
+
+```bash
+0 9 * * * /path/to/linux_health_check.sh >> /var/log/health_check.log 2>&1
+```
+
+---
+
