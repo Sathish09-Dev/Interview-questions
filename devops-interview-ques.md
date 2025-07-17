@@ -255,3 +255,28 @@ stages:
 
 Would you like a visual **pipeline flowchart** or a version for **Linux-hosted .NET apps** on **Azure VMs** instead?
 
+## 2. Which Infrastructure as Code (IaC) tools have you used, and how have you optimized them for your environment?"
+---
+
+✅ Sample Answer:
+I’ve primarily used Terraform as my Infrastructure as Code (IaC) tool, along with some experience in ARM templates and Terraform Enterprise for more advanced workflows.
+
+With Terraform, I’ve provisioned and managed resources like Azure App Services, AKS clusters, VNets, Key Vaults, and storage accounts. I structured the code using modular design patterns, separating environments (dev/test/prod) with reusable modules for maintainability.
+
+To optimize for scalability and reusability, I:
+
+Used remote backends in Terraform Cloud/Enterprise to enable team collaboration and state locking.
+
+Integrated Terraform into Azure DevOps pipelines so infrastructure provisioning was part of CI/CD.
+
+Parameterized variables using .tfvars files and managed sensitive data using Vault and Azure Key Vault, never hardcoding secrets in code.
+
+Applied resource tagging and naming conventions dynamically to improve governance and cost tracking.
+
+Adopted lifecycle hooks and dependency graphs to handle critical resource ordering and avoid drift.
+
+This approach helped ensure idempotent, secure, and consistent infrastructure deployments, reduced configuration drift, and aligned with enterprise compliance requirements like HIPAA.
+ ## What is a Remote Backend in Terraform?
+A remote backend in Terraform is a way to store the Terraform state file (terraform.tfstate) in a centralized, remote location, instead of locally on your machine.
+
+The state file holds the current configuration of your infrastructure, so managing it properly is critical — especially in teams.
