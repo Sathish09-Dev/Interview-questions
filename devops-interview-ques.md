@@ -281,7 +281,7 @@ A remote backend in Terraform is a way to store the Terraform state file (terraf
 
 The state file holds the current configuration of your infrastructure, so managing it properly is critical — especially in teams.
 ---
-## Give an example of a script you've written to automate a routine task. What language did you use and why?
+##  3.Give an example of a script you've written to automate a routine task. What language did you use and why?
 Here's a **Bash script** to perform a **health check on a Linux server**. It gathers system health metrics such as:
 
 * CPU load
@@ -371,6 +371,39 @@ Add:
 ```bash
 0 9 * * * /path/to/linux_health_check.sh >> /var/log/health_check.log 2>&1
 ```
+## 4.What monitoring and alerting tools have you used, and how did you configure them to detect infrastructure-level failures?"
 
+✅ Sample Answer:
+I’ve worked with several monitoring and alerting tools, primarily Azure Monitor (with Application Insights and Log Analytics).
+
+For cloud-native environments on Azure, I configured:
+
+Azure Monitor to collect platform metrics like CPU, memory, disk I/O, and network latency across VMs and services.
+
+Used Log Analytics workspaces to centralize logs from VMs, AKS clusters, and App Services.
+
+Configured Azure Alerts based on metric thresholds — for example:
+
+Triggered alerts if CPU > 85% for 5+ minutes
+
+Alerted on VM status changes (e.g., deallocated or unreachable)
+
+Created heartbeat-based alerts to detect disconnected agents
+
+For application-level observability, I integrated Application Insights with .NET apps to:
+
+Track response times, failure rates, and dependency health
+
+Set Smart Detection rules for anomalies in performance or usage
+
+For alert routing, I used Action Groups in Azure to send alerts to:
+
+Email
+
+Teams/Slack via webhook
+
+PagerDuty for critical issues
+
+This setup helped us proactively detect and respond to infrastructure-level issues, like failing disks, over-utilized VMs, or app service outages, often before users reported them.
 ---
 
