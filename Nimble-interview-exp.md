@@ -420,6 +420,73 @@ Azure Static Web Apps	Modern static sites & SPAs	GitHub Actions	Automatic build/
 Azure Blob Storage	Plain HTML/CSS/JS websites	CLI/Explorer	Cheapest, fastest for static content
 Azure App Service	Mixed static + backend APIs	DevOps, VS	Overkill for simple static sites
 
+## 8. How do you perform rollback for production failure?
+
+Rolling back a production deployment depends on whether you're rolling back:
+
+🏗️ Application code (like a .NET app or Angular app), or
+
+⚙️ Infrastructure (like Azure App Services, databases, load balancers)
+
+Below are common rollback strategies for both scenarios in a production environment.
+
+✅ 1. Application Rollback (e.g., .NET App in Azure)
+Option 1: Using Azure App Service Deployment Slots (Blue-Green Strategy)
+Use a staging slot to deploy new version.
+
+If production fails after swap → just "swap back" to the previous slot.
+
+🔁 Rollback steps:
+
+Go to Azure Portal → App Service
+
+Click “Deployment slots”
+
+Click “Swap” to move staging back to production
+
+🟢 Pros: Zero downtime rollback
+🔴 Cons: You need to maintain two slots
+
+Option 2: Redeploy Previous Build from CI/CD
+If you deployed using Azure DevOps, Jenkins, or GitHub Actions:
+
+Go to the pipeline history
+
+Find the last successful build
+
+Redeploy it manually (e.g., click "Deploy" or re-run with same artifact)
+
+💡 Tip: Always tag your releases (v1.0, v1.1) so you know which version to go back to.
+
+Option 3: Git Revert + Redeploy
+If you don’t have slots or CI versioning:
+
+Revert the Git commit or PR that caused the issue:
+
+bash
+Copy
+Edit
+git revert <commit SHA>
+git push origin main
+Let your pipeline re-trigger and deploy the stable code
+
+✅ 2. Infrastructure Rollback (Using Terraform or ARM/Bicep)
+If your production issue is due to infrastructure changes:
+
+🛠 Terraform Rollback:
+
+Go back to previous Git commit:
+
+bash
+Copy
+Edit
+git checkout <previous stable version>
+terraform plan
+terraform apply
+🛑 Be cautious with resources like databases or identity (Azure AD) — rollback may not be clean.
+
+💡 Tip: Enable versioning in Azure Blob/S3 for tfstate backup.
+
 ## 9. What is the Script that you have used for automation and Why?
 
 🐚 What is a Bash Script?
@@ -758,9 +825,7 @@ pipeline {
 }
 
 
-## 13. How do you perform rollback for production failure?
-
-## 14. Agile methodologies
+## 13. Agile methodologies
 
 Agile Methodologies are iterative and incremental approaches to software development that emphasize:
 
@@ -866,6 +931,6 @@ Trello	Lightweight Kanban board
 Monday.com	Team collaboration
 Confluence	Documentation
 
-## 15. Reason to choose DevOps as carrer
+## 14. Reason to choose DevOps as career
 
 “I’m passionate about improving the software development lifecycle. DevOps gives me the tools to automate, monitor, and deploy applications more efficiently. I find it rewarding to remove bottlenecks, help teams release faster, and ensure system reliability — all of which directly improve product quality and user experience.”
